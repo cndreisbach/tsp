@@ -2,22 +2,24 @@ package main
 
 import (
 	"errors"
-	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"strconv"
 
+	flag "github.com/ogier/pflag"
 	"tailscale.com/client/tailscale"
 	"tailscale.com/tailcfg"
 	"tailscale.com/tsnet"
 )
 
 var (
-	verbose  = flag.Bool("v", false, "be verbose")
-	hostname = flag.String("h", "", "hostname for service")
-	port     = flag.Int("p", 80, "port to proxy to")
+	verbose  = flag.BoolP("verbose", "v", false, "be verbose")
+	hostname = flag.StringP("hostname", "h", "", "hostname for service")
+	port     = flag.IntP("port", "p", 80, "port to proxy to")
 )
 
 var localClient *tailscale.LocalClient
@@ -46,7 +48,7 @@ func tspRun() error {
 	flag.Parse()
 
 	if *hostname == "" {
-		return errors.New("-h cannot be empty")
+		return errors.New("hostname cannot be empty")
 	}
 
 	if flag.NArg() != 1 {
@@ -91,6 +93,7 @@ func tspRun() error {
 
 func main() {
 	if err := tspRun(); err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }
